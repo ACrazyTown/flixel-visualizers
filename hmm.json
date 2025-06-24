@@ -4,7 +4,7 @@
       "name": "flixel",
       "type": "git",
       "dir": null,
-      "ref": "e356bd237",
+      "ref": "20469362a",
       "url": "https://github.com/HaxeFlixel/flixel"
     },
     {
@@ -16,7 +16,7 @@
       "name": "flixel-waveform",
       "type": "git",
       "dir": null,
-      "ref": "f040aeb",
+      "ref": "437a19b",
       "url": "https://github.com/ACrazyTown/flixel-waveform"
     },
     {
