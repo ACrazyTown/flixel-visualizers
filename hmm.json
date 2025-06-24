@@ -20,14 +20,31 @@
       "url": "https://github.com/ACrazyTown/flixel-waveform"
     },
     {
+      "name": "format",
+      "type": "haxelib",
+      "version": "3.8.0"
+    },
+    {
       "name": "hscript",
       "type": "haxelib",
       "version": "2.6.0"
     },
     {
-      "name": "lime",
+      "name": "hxcpp",
       "type": "haxelib",
-      "version": "8.2.2"
+      "version": "4.3.0"
+    },
+    {
+      "name": "hxp",
+      "type": "haxelib",
+      "version": "1.3.0"
+    },
+    {
+      "name": "lime",
+      "type": "git",
+      "dir": null,
+      "ref": "7fb76026",
+      "url": "https://github.com/ACrazyTown/lime"
     },
     {
       "name": "openfl",

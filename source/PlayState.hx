@@ -179,14 +179,14 @@ class PlayState extends FlxState
 		{
 			if (music.playing)
 			{
-				waveform.waveformTime = music.position;
-				waveformLeft.waveformTime = music.position;
-				waveformRight.waveformTime = music.position;
+				waveform.waveformTime = music.realPosition;
+				waveformLeft.waveformTime = music.realPosition;
+				waveformRight.waveformTime = music.realPosition;
 
-				bar.clipRect.width = (music.position / music.length) * bar.width;
+				bar.clipRect.width = (music.realPosition / music.length) * bar.width;
 
-				curTime.text = FlxStringUtil.formatTime(music.position / 1000, false);
-				remainingTime.text = FlxStringUtil.formatTime((music.length - music.position) / 1000, false);
+				curTime.text = FlxStringUtil.formatTime(music.realPosition / 1000, false);
+				remainingTime.text = FlxStringUtil.formatTime((music.length - music.realPosition) / 1000, false);
 				remainingTime.x = FlxG.width - remainingTime.width - 5;
 				coolScroll.x += elapsed * 20;
 				if (coolScroll.x > (FlxG.width + coolScroll.width))
@@ -216,8 +216,8 @@ class PlayState extends FlxState
 		dvd.alpha = 1;
 		FlxTween.tween(overlay, {alpha: 0}, 1);
 
-		curTime.text = FlxStringUtil.formatTime(music.position / 1000, false);
-		remainingTime.text = FlxStringUtil.formatTime((music.length - music.position) / 1000, false);
+		curTime.text = FlxStringUtil.formatTime(music.realPosition / 1000, false);
+		remainingTime.text = FlxStringUtil.formatTime((music.length - music.realPosition) / 1000, false);
 		remainingTime.x = FlxG.width - remainingTime.width - 5;
 
 		FlxTimer.wait(2, () ->
@@ -235,6 +235,7 @@ class PlayState extends FlxState
 			FlxTween.tween(waveformRight, {alpha: 1}, 1);
 		});
 	}
+	
 	function playOutro():Void
 	{
 		FlxTween.tween(dvdShadow, {alpha: 0}, 1);
@@ -246,8 +247,8 @@ class PlayState extends FlxState
 		FlxTween.tween(waveformLeft, {alpha: 0}, 1);
 		FlxTween.tween(waveformRight, {alpha: 0}, 1);
 
-		// curTime.text = FlxStringUtil.formatTime(music.position / 1000, false);
-		// remainingTime.text = FlxStringUtil.formatTime((music.length - music.position) / 1000, false);
+		// curTime.text = FlxStringUtil.formatTime(music.realPosition / 1000, false);
+		// remainingTime.text = FlxStringUtil.formatTime((music.length - music.realPosition) / 1000, false);
 		// remainingTime.x = FlxG.width - remainingTime.width - 5;
 
 		FlxTimer.wait(2, () ->

@@ -20,4 +20,17 @@ abstract PreciseSound(FlxSound) from FlxSound to FlxSound
         @:privateAccess
         return this._channel?.position ?? 0;
     }
+
+    /**
+     * The current playing, latency compensated, position of this sound.
+     * 
+     * This is the position of the sound as it comes out of the speakers.
+     */
+    public var realPosition(get, never):Float;
+
+    @:noCompletion inline function get_realPosition():Float
+    {
+        @:privateAccess
+        return position + this._channel?.__audioSource.latency;
+    }
 }
