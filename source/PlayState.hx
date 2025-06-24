@@ -21,7 +21,7 @@ import openfl.filters.ShaderFilter;
 
 class PlayState extends FlxState
 {
-	final COOL_COLOR_1:FlxColor = 0xFFFF65D9;
+	final COOL_COLOR_1:FlxColor = 0xFF5AD89D;
 
 	var music:PreciseSound;
 	var canvas:FlxSprite;
@@ -38,7 +38,6 @@ class PlayState extends FlxState
 	var conductor:Conductor;
 	var coolScroll:FlxText;
 	var overlay:FlxSprite;
-	var pianoBoy:FlxSprite;
 	var wiggleEffect:WiggleEffect;
 
 	override public function create()
@@ -157,90 +156,6 @@ class PlayState extends FlxState
 		overlay = new FlxSprite().makeGraphic(FlxG.width, FlxG.height, FlxColor.BLACK);
 		overlay.alpha = 1;
 		add(overlay);
-
-		pianoBoy = new FlxSprite();
-		pianoBoy.frames = FlxAtlasFrames.fromSparrow("assets/piano.png", "assets/piano.xml");
-		pianoBoy.animation.addByIndices("idle", "funny play", [1], "", 24);
-		pianoBoy.animation.addByIndices("play", "funny play", [2, 3, 4, 5, 6, 7], "", 24, false);
-		pianoBoy.animation.play("idle");
-		pianoBoy.y = FlxG.height + pianoBoy.height;
-		pianoBoy.screenCenter(X);
-		add(pianoBoy);
-
-		conductor.onBeatHit.add((beat:Int) ->
-		{
-			if (beat >= 8 && beat != 15)
-			{
-				if (beat >= 48 && beat <= 64)
-					return;
-
-				FlxTween.cancelTweensOf(dvd);
-				dvd.scale.set(1.075, 1.075);
-				FlxTween.tween(dvd, {"scale.x": 1, "scale.y": 1}, conductor.beatLength / 1000, {ease: FlxEase.sineOut});
-			}
-
-			if (beat == 32)
-			{
-				FlxTween.tween(pianoBoy, {y: FlxG.height - pianoBoy.height + 30}, (conductor.beatLength * 16) / 1000, {
-					ease: FlxEase.quadOut,
-					onComplete: (t:FlxTween) ->
-					{
-						pianoBoy.animation.play("play");
-					}
-				});
-			}
-		});
-
-		// don't ask
-		var stepsToPlay:Array<Int> = [4, 7, 9, 11, 15, 31, 33, 36, 37, 39, 47, 59, 63];
-		for (i in 0...stepsToPlay.length)
-			stepsToPlay[i] += 191;
-
-		// trace(stepsToPlay);
-
-		// dog manager
-		var triggerLight:Bool = false;
-		var gettingRidOfTheDogCauseWeDontWantYouAnymore:Bool = false;
-		var light:FlxSprite = new FlxSprite(0, -20).loadGraphic("assets/light.png");
-		light.screenCenter(X);
-		light.blend = ADD;
-		light.alpha = 0;
-		add(light);
-
-		conductor.onStepHit.add((step:Int) ->
-		{
-			if (conductor.curBeat >= 48 && conductor.curBeat <= 64)
-			{
-				if (!triggerLight)
-				{
-					overlay.alpha = 0.8;
-					light.alpha = 0.6;
-					triggerLight = true;
-				}
-
-				// if (step == 204)
-				// {
-				// 	pianoBoy.animation.play("idle", true);
-				// }
-
-				if (stepsToPlay[0] == step)
-				{
-					stepsToPlay.shift();
-					pianoBoy.animation.play("play", true);
-
-					if (stepsToPlay.length == 0 && !gettingRidOfTheDogCauseWeDontWantYouAnymore)
-					{
-						overlay.alpha = 0;
-						light.alpha = 0;
-						// pianoBoy.animation.play("idle", true);
-		
-						FlxTween.tween(pianoBoy, {y: FlxG.height + pianoBoy.height}, conductor.beatLength / 1000,
-							{startDelay: conductor.beatLength / 1000, ease: FlxEase.quadIn});
-						gettingRidOfTheDogCauseWeDontWantYouAnymore = true;
-					}
-				}
-			}
-		});
 
 		// Hide everything and show it when we do intro
 		curTime.alpha = 0;
