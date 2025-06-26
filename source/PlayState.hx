@@ -6,6 +6,7 @@ import flixel.FlxSprite;
 import flixel.FlxState;
 import flixel.addons.display.FlxBackdrop;
 import flixel.addons.display.waveform.FlxWaveform;
+import flixel.addons.plugin.screenrecorder.FlxScreenRecorder;
 import flixel.graphics.frames.FlxAtlasFrames;
 import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.math.FlxMath;
@@ -17,19 +18,27 @@ import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
 import flixel.util.FlxStringUtil;
 import flixel.util.FlxTimer;
+import midi.FlxMIDIRenderer;
 import openfl.filters.ShaderFilter;
+import vfx.CircleWarpShader;
+import vfx.FisheyeShader;
 
 class PlayState extends FlxState
 {
+	final SONG_NAME:String = "whimsi";
 	final COOL_COLOR_1:FlxColor = 0xFF5AD89D;
+
+	var mainCamera:Camera;
+	var bgCamera:Camera;
+	var midiCamera:Camera;
+	var waveformCamera:Camera;
+	var hudCamera:Camera;
 
 	var music:PreciseSound;
 	var canvas:FlxSprite;
-	var waveformCamera:FlxCamera;
 	var waveform:FlxWaveform;
 	var waveformLeft:FlxWaveform;
 	var waveformRight:FlxWaveform;
-	var hudCamera:FlxCamera;
 	var dvdShadow:FlxSprite;
 	var dvd:FlxSprite;
 	var bar:FlxSprite;
@@ -39,46 +48,59 @@ class PlayState extends FlxState
 	var coolScroll:FlxText;
 	var overlay:FlxSprite;
 	var wiggleEffect:WiggleEffect;
+	var midi:FlxMIDIRenderer;
+
+	var recorder:FlxScreenRecorder;
 
 	override public function create()
 	{
 		super.create();
 
-		bgColor = 0xFF211225;
+		// bgColor = 0xFF06110D;
 
 		FlxG.mouse.visible = false;
 		FlxG.autoPause = false;
 		FlxG.fixedTimestep = false;
-		FlxG.updateFramerate = 180;
+		FlxG.updateFramerate = 180 * 2;
 		FlxG.drawFramerate = 180;
 
-		music = cast FlxG.sound.load("assets/canvas4d.wav");
+		recorder = new FlxScreenRecorder();
+		add(recorder);
 
-		conductor = new Conductor(85);
+		music = cast FlxG.sound.load('assets/$SONG_NAME.wav');
+
+		conductor = new Conductor(135);
 		conductor.targetSound = music;
 		add(conductor);
 
 		// canvas = new FlxSprite(0, 100).makeGraphic(500, 500);
 		// add(canvas);
 		
+		mainCamera = new Camera();
+		FlxG.cameras.reset(mainCamera);
+
 		wiggleEffect = new WiggleEffect();
 		wiggleEffect.effectType = FLAG;
 		wiggleEffect.waveAmplitude = 0.08;
 		wiggleEffect.waveFrequency = 0.2;
 		wiggleEffect.waveSpeed = 0.8;
-		var bgCamera = new FlxCamera();
+		bgCamera = new Camera();
 		FlxG.cameras.add(bgCamera, false);
 		bgCamera.filters = [new ShaderFilter(wiggleEffect.shader)];
 
-		waveformCamera = new FlxCamera();
-		waveformCamera.bgColor.alpha = 0;
+		midiCamera = new Camera();
+		FlxG.cameras.add(midiCamera, false);
+		var fisheye = new FisheyeShader();
+		fisheye.power = -0.4;
+		// midiCamera.filters = [new ShaderFilter(fisheye)];
+
+		waveformCamera = new Camera();
 		FlxG.cameras.add(waveformCamera, false);
 		var circle = new CircleWarpShader();
 		waveformCamera.filters = [new ShaderFilter(circle)];
 		circle.bitmap.wrap = REPEAT;
 
-		hudCamera = new FlxCamera();
-		hudCamera.bgColor.alpha = 0;
+		hudCamera = new Camera();
 		FlxG.cameras.add(hudCamera, true);
 
 		// there's some weird fuckery if you apply the shader directly to the bg
@@ -88,6 +110,13 @@ class PlayState extends FlxState
 		bg.camera = bgCamera;
 		bg.scale.set(1.3, 1.3);
 		add(bg);
+
+		midi = new FlxMIDIRenderer(0, 0, 'assets/$SONG_NAME.mid', [0xFF4248A1]);
+		midi.camera = midiCamera;
+		// midi.setBlend(ADD);
+		midi.blend = ADD;
+		midi.alpha = 0.5;
+		add(midi);
 
 		dvdShadow = new FlxSprite().loadGraphic("assets/dvdShadow.png");
 		dvdShadow.alpha = 0;
@@ -120,7 +149,7 @@ class PlayState extends FlxState
 		waveform = new FlxWaveform(0, 0, FlxG.width, FlxG.height, COOL_COLOR_1, FlxColor.TRANSPARENT);
 		waveform.loadDataFromFlxSound(music);
 		waveform.waveformDuration = 100;
-		waveform.waveformGainMultiplier = 1.7;
+		waveform.waveformGainMultiplier = 1.6;
 		waveform.waveformDrawBaseline = true;
 		// waveform.waveformDrawMode = SPLIT_CHANNELS;
 		waveform.camera = waveformCamera;
@@ -132,7 +161,7 @@ class PlayState extends FlxState
 		waveformLeft = new FlxWaveform(0, waveformPadding, 30, FlxG.height - waveformPadding2, COOL_COLOR_1, FlxColor.TRANSPARENT);
 		waveformLeft.loadDataFromFlxWaveformBuffer(waveform.waveformBuffer);
 		waveformLeft.waveformDuration = 1000;
-		waveformLeft.waveformGainMultiplier = 1.5;
+		waveformLeft.waveformGainMultiplier = 1.2;
 		waveformLeft.waveformOrientation = VERTICAL;
 		waveformLeft.waveformDrawMode = SINGLE_CHANNEL(0);
 		waveformLeft.waveformDrawBaseline = true;
@@ -141,14 +170,14 @@ class PlayState extends FlxState
 		waveformRight = new FlxWaveform(FlxG.width - 30, waveformPadding, 30, FlxG.height - waveformPadding2, COOL_COLOR_1, FlxColor.TRANSPARENT);
 		waveformRight.loadDataFromFlxWaveformBuffer(waveform.waveformBuffer);
 		waveformRight.waveformDuration = 1000;
-		waveformRight.waveformGainMultiplier = 1.5;
+		waveformRight.waveformGainMultiplier = 1.2;
 		waveformRight.waveformOrientation = VERTICAL;
 		waveformRight.waveformDrawMode = SINGLE_CHANNEL(1);
 		waveformRight.waveformDrawBaseline = true;
 		add(waveformRight);
 
-		coolScroll = new FlxText(0, 0, 0, "A Crazy Town - canvas4d");
-		coolScroll.y = FlxG.height - coolScroll.height - 8;
+		coolScroll = new FlxText(0, 0, 0, 'A Crazy Town - $SONG_NAME');
+		coolScroll.y = FlxG.height - coolScroll.height - 5;
 		coolScroll.x = -coolScroll.width;
 		coolScroll.color = COOL_COLOR_1;
 		add(coolScroll);
@@ -158,13 +187,14 @@ class PlayState extends FlxState
 		add(overlay);
 
 		// Hide everything and show it when we do intro
-		curTime.alpha = 0;
-		remainingTime.alpha = 0;
-		bar.alpha = 0;
-		dvd.alpha = 0;
-		waveform.alpha = 0;
-		waveformLeft.alpha = 0;
-		waveformRight.alpha = 0;
+		// curTime.alpha = 0;
+		// remainingTime.alpha = 0;
+		// bar.alpha = 0;
+		// dvd.alpha = 0;
+		// waveform.alpha = 0;
+		// waveformLeft.alpha = 0;
+		// waveformRight.alpha = 0;
+
 		music.onComplete = playOutro;
 	}
 
@@ -191,6 +221,7 @@ class PlayState extends FlxState
 				coolScroll.x += elapsed * 20;
 				if (coolScroll.x > (FlxG.width + coolScroll.width))
 					coolScroll.x = -coolScroll.width;
+				midi.updateNotes(music.realPosition);
 			}
 		}
 		else
@@ -210,6 +241,14 @@ class PlayState extends FlxState
 
 	function playIntro():Void
 	{
+		// recorder.start({
+		// 	width: FlxG.width,
+		// 	height: FlxG.height,
+		// 	crf: 17,
+		// 	videoCodec: H265,
+		// 	framerate: 60
+		// });
+
 		inIntro = true;
 
 		overlay.alpha = 1;
@@ -220,20 +259,19 @@ class PlayState extends FlxState
 		remainingTime.text = FlxStringUtil.formatTime((music.length - music.realPosition) / 1000, false);
 		remainingTime.x = FlxG.width - remainingTime.width - 5;
 
-		FlxTimer.wait(2, () ->
-		{
-			music.play();
-			doneIntro = true;
+		music.play();
+		doneIntro = true;
 
-			FlxTween.tween(dvdShadow, {alpha: 0.7}, 1);
-			FlxTween.tween(curTime, {alpha: 1}, 1);
-			FlxTween.tween(remainingTime, {alpha: 1}, 1);
-			FlxTween.tween(bar, {alpha: 1}, 1);
+		// for (camera in FlxG.cameras.list)
+		// {
+		// 	camera.zoom = 2.0;
+		// 	camera.scroll.set(-FlxG.width / 4, -FlxG.height / 4);
+		// }
 
-			FlxTween.tween(waveform, {alpha: 1}, 1);
-			FlxTween.tween(waveformLeft, {alpha: 1}, 1);
-			FlxTween.tween(waveformRight, {alpha: 1}, 1);
-		});
+		// conductor.onBeatHit.add((beat) ->
+		// {
+			
+		// });
 	}
 	
 	function playOutro():Void
@@ -254,6 +292,10 @@ class PlayState extends FlxState
 		FlxTimer.wait(2, () ->
 		{
 			FlxTween.tween(overlay, {alpha: 1}, 1);
+			FlxTimer.wait(2, () ->
+			{
+				recorder.stop();
+			});
 		});
 	}
 }

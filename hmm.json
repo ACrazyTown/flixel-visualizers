@@ -13,6 +13,13 @@
       "version": "3.3.2"
     },
     {
+      "name": "flixel-screenrecorder",
+      "type": "git",
+      "dir": null,
+      "ref": "d867a8e",
+      "url": "https://github.com/ACrazyTown/flixel-screenrecorder"
+    },
+    {
       "name": "flixel-waveform",
       "type": "git",
       "dir": null,
@@ -23,6 +30,16 @@
       "name": "format",
       "type": "haxelib",
       "version": "3.8.0"
+    },
+    {
+      "name": "grig.midi",
+      "type": "haxelib",
+      "version": "0.0.11"
+    },
+    {
+      "name": "grig.pitch",
+      "type": "haxelib",
+      "version": "0.0.2"
     },
     {
       "name": "hscript",
@@ -50,6 +67,16 @@
       "name": "openfl",
       "type": "haxelib",
       "version": "9.4.1"
+    },
+    {
+      "name": "thx.core",
+      "type": "haxelib",
+      "version": "0.44.0"
+    },
+    {
+      "name": "tink_core",
+      "type": "haxelib",
+      "version": "2.1.1"
     }
   ]
 }
