@@ -6,6 +6,17 @@ import flixel.sound.FlxSound;
 abstract PreciseSound(FlxSound) from FlxSound to FlxSound
 {
     /**
+     * The latency of this sound, in miliseconds.
+     */
+    public var latency(get, never):Float;
+
+    @:noCompletion inline function get_latency():Float 
+    {
+        @:privateAccess
+        return this._channel?.__audioSource.latency;
+    }
+
+    /**
      * The current playing position of this sound.
      * 
      * `FlxSound.time` updates with the game loop instead of independently,
@@ -31,6 +42,7 @@ abstract PreciseSound(FlxSound) from FlxSound to FlxSound
     @:noCompletion inline function get_realPosition():Float
     {
         @:privateAccess
-        return position + this._channel?.__audioSource.latency;
+        return position - latency;
     }
 }
+

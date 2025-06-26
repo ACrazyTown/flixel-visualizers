@@ -1,5 +1,4 @@
-
-package;
+package vfx;
 
 // https://github.com/HaxeFlixel/flixel-demos/blob/dev/Effects/BlendModeShaders/source/effects/WiggleEffect.hx
 

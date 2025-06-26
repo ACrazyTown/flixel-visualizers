@@ -1,19 +1,12 @@
 package;
 
-import flixel.FlxCamera;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.FlxState;
-import flixel.addons.display.FlxBackdrop;
 import flixel.addons.display.waveform.FlxWaveform;
 import flixel.addons.plugin.screenrecorder.FlxScreenRecorder;
-import flixel.graphics.frames.FlxAtlasFrames;
-import flixel.group.FlxGroup.FlxTypedGroup;
-import flixel.math.FlxMath;
-import flixel.math.FlxPoint;
 import flixel.math.FlxRect;
 import flixel.text.FlxText;
-import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
 import flixel.util.FlxStringUtil;
@@ -22,6 +15,7 @@ import midi.FlxMIDIRenderer;
 import openfl.filters.ShaderFilter;
 import vfx.CircleWarpShader;
 import vfx.FisheyeShader;
+import vfx.WiggleEffect;
 
 class PlayState extends FlxState
 {
@@ -91,8 +85,8 @@ class PlayState extends FlxState
 		midiCamera = new Camera();
 		FlxG.cameras.add(midiCamera, false);
 		var fisheye = new FisheyeShader();
-		fisheye.power = -0.4;
-		// midiCamera.filters = [new ShaderFilter(fisheye)];
+		fisheye.power = -0.2;
+		midiCamera.filters = [new ShaderFilter(fisheye)];
 
 		waveformCamera = new Camera();
 		FlxG.cameras.add(waveformCamera, false);
@@ -148,12 +142,15 @@ class PlayState extends FlxState
 
 		waveform = new FlxWaveform(0, 0, FlxG.width, FlxG.height, COOL_COLOR_1, FlxColor.TRANSPARENT);
 		waveform.loadDataFromFlxSound(music);
-		waveform.waveformDuration = 100;
+		waveform.waveformDuration = 20;
 		waveform.waveformGainMultiplier = 1.6;
 		waveform.waveformDrawBaseline = true;
 		// waveform.waveformDrawMode = SPLIT_CHANNELS;
 		waveform.camera = waveformCamera;
 		add(waveform);
+
+		// call beforehand to cache
+		waveform.generateWaveformBitmap();
 
 		var waveformPadding:Int = Std.int(curTime.y + curTime.height + 5);
 		var waveformPadding2:Int = waveformPadding * 2;
@@ -262,16 +259,47 @@ class PlayState extends FlxState
 		music.play();
 		doneIntro = true;
 
-		// for (camera in FlxG.cameras.list)
-		// {
-		// 	camera.zoom = 2.0;
-		// 	camera.scroll.set(-FlxG.width / 4, -FlxG.height / 4);
-		// }
+		waveformCamera.visible = false;
+		for (camera in FlxG.cameras.list)
+		{
+			camera.zoom = 2.0;
+			camera.scroll.set(-FlxG.width / 4, -FlxG.height / 4);
+		}
 
-		// conductor.onBeatHit.add((beat) ->
-		// {
-			
-		// });
+		conductor.onBeatHit.add((beat) ->
+		{
+			switch (beat)
+			{
+				case 1:
+					for (camera in FlxG.cameras.list)
+					{
+						camera.zoom = 2.0;
+						camera.scroll.set(FlxG.width / 4, -FlxG.height / 4);
+					}
+
+				case 2:
+					for (camera in FlxG.cameras.list)
+					{
+						camera.zoom = 2.0;
+						camera.scroll.set(-FlxG.width / 4, FlxG.height / 4);
+					}
+
+				case 3:
+					for (camera in FlxG.cameras.list)
+					{
+						camera.zoom = 2.0;
+						camera.scroll.set(FlxG.width / 4, FlxG.height / 4);
+					}
+
+				case 4:
+					for (camera in FlxG.cameras.list)
+					{
+						camera.zoom = 1.0;
+						camera.scroll.set();
+						waveformCamera.visible = true;
+					}
+			}
+		});
 	}
 	
 	function playOutro():Void
