@@ -42,7 +42,7 @@ abstract PreciseSound(FlxSound) from FlxSound to FlxSound
     @:noCompletion inline function get_realPosition():Float
     {
         @:privateAccess
-        return position - latency;
+        return Math.max(position - latency, 0);
     }
 }
 
