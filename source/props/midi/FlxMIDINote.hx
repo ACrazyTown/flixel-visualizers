@@ -1,4 +1,4 @@
-package midi;
+package props.midi;
 
 import flixel.FlxSprite;
 import flixel.util.FlxColor;

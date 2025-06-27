@@ -1,10 +1,7 @@
-package;
+package util;
 
-import lime.media.AudioBuffer;
 import flixel.FlxG;
-import flixel.math.FlxMath;
 import flixel.util.FlxSignal.FlxTypedSignal;
-import flixel.sound.FlxSound;
 import flixel.FlxBasic;
 
 class Conductor extends FlxBasic

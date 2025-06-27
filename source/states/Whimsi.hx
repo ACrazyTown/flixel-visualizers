@@ -1,4 +1,4 @@
-package;
+package states;
 
 import flixel.FlxG;
 import flixel.FlxSprite;
@@ -11,13 +11,16 @@ import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
 import flixel.util.FlxStringUtil;
 import flixel.util.FlxTimer;
-import midi.FlxMIDIRenderer;
+import props.midi.FlxMIDIRenderer;
 import openfl.filters.ShaderFilter;
 import vfx.CircleWarpShader;
 import vfx.FisheyeShader;
 import vfx.WiggleEffect;
+import props.Camera;
+import util.PreciseSound;
+import util.Conductor;
 
-class PlayState extends FlxState
+class Whimsi extends FlxState
 {
 	final SONG_NAME:String = "whimsi";
 	final COOL_COLOR_1:FlxColor = 0xFF5AD89D;
@@ -61,7 +64,7 @@ class PlayState extends FlxState
 		recorder = new FlxScreenRecorder();
 		add(recorder);
 
-		music = cast FlxG.sound.load('assets/$SONG_NAME.wav');
+		music = cast FlxG.sound.load('assets/whimsi/whimsi.wav');
 
 		conductor = new Conductor(135);
 		conductor.targetSound = music;
@@ -80,7 +83,7 @@ class PlayState extends FlxState
 		wiggleEffect.waveSpeed = 0.8;
 		bgCamera = new Camera();
 		FlxG.cameras.add(bgCamera, false);
-		bgCamera.filters = [new ShaderFilter(wiggleEffect.shader)];
+		// bgCamera.filters = [new ShaderFilter(wiggleEffect.shader)];
 
 		midiCamera = new Camera();
 		FlxG.cameras.add(midiCamera, false);
@@ -100,16 +103,21 @@ class PlayState extends FlxState
 		// there's some weird fuckery if you apply the shader directly to the bg
 		// the waveform circle will stop rendering entirely
 		// I have no idea why and TBH im not gonna look into it
-		var bg:FlxSprite = new FlxSprite().loadGraphic("assets/bg.png");
+		// var bg:FlxSprite = new FlxSprite().loadGraphic("assets/bg.png");
+		// bg.camera = bgCamera;
+		// bg.scale.set(1.3, 1.3);
+		// add(bg);
+
+		var bg:FlxSprite = new FlxSprite().makeGraphic(FlxG.width, FlxG.height, 0xFF020A06);
 		bg.camera = bgCamera;
-		bg.scale.set(1.3, 1.3);
 		add(bg);
 
-		midi = new FlxMIDIRenderer(0, 0, 'assets/$SONG_NAME.mid', [0xFF4248A1]);
+		midi = new FlxMIDIRenderer(0, 0, 'assets/whimsi/whimsi.mid', [0xFF0A2518]);
 		midi.camera = midiCamera;
 		// midi.setBlend(ADD);
-		midi.blend = ADD;
-		midi.alpha = 0.5;
+		// midi.blend = ADD;
+		// midi.alpha = 0.7;
+		midi.screenCenter(Y);
 		add(midi);
 
 		dvdShadow = new FlxSprite().loadGraphic("assets/dvdShadow.png");
@@ -117,7 +125,7 @@ class PlayState extends FlxState
 		dvdShadow.screenCenter();
 		add(dvdShadow);
 
-		dvd = new FlxSprite().loadGraphic("assets/dvd2.png");
+		dvd = new FlxSprite().loadGraphic("assets/whimsi/whimsi-dvd.png");
 		dvd.screenCenter();
 		add(dvd);
 
@@ -266,7 +274,7 @@ class PlayState extends FlxState
 			camera.scroll.set(-FlxG.width / 4, -FlxG.height / 4);
 		}
 
-		conductor.onBeatHit.add((beat) ->
+		conductor.onBeatHit.add((beat:Int) ->
 		{
 			switch (beat)
 			{
@@ -298,6 +306,8 @@ class PlayState extends FlxState
 						camera.scroll.set();
 						waveformCamera.visible = true;
 					}
+
+				default:
 			}
 		});
 	}

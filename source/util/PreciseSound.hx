@@ -1,4 +1,4 @@
-package;
+package util;
 
 import flixel.sound.FlxSound;
 

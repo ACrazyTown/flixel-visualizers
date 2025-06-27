@@ -1,10 +1,10 @@
-package;
+package states;
 
 import flixel.FlxCamera;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.FlxState;
-import midi.FlxMIDIRenderer;
+import props.midi.FlxMIDIRenderer;
 import openfl.filters.ShaderFilter;
 import vfx.FisheyeShader;
 import vfx.PanoramaDistortionShader;
@@ -52,7 +52,7 @@ class TestState extends FlxState
     {
         super.update(elapsed);
 
-        var ps:PreciseSound = cast FlxG.sound.music;
+        var ps:util.PreciseSound = cast FlxG.sound.music;
         midiRenderer.updateNotes(ps.position);
     }
 }

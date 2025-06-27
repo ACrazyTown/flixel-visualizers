@@ -1,4 +1,4 @@
-package midi;
+package props.midi;
 
 import openfl.display.BlendMode;
 import flixel.system.FlxAssets.FlxShader;
