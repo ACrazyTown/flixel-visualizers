@@ -11,14 +11,14 @@ import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
 import flixel.util.FlxStringUtil;
 import flixel.util.FlxTimer;
-import props.midi.FlxMIDIRenderer;
 import openfl.filters.ShaderFilter;
+import props.Camera;
+import props.midi.FlxMIDIRenderer;
+import util.Conductor;
+import util.PreciseSound;
 import vfx.CircleWarpShader;
 import vfx.FisheyeShader;
 import vfx.WiggleEffect;
-import props.Camera;
-import util.PreciseSound;
-import util.Conductor;
 
 class Whimsi extends FlxState
 {
@@ -47,7 +47,7 @@ class Whimsi extends FlxState
 	var wiggleEffect:WiggleEffect;
 	var midi:FlxMIDIRenderer;
 
-	var recorder:FlxScreenRecorder;
+	// var recorder:FlxScreenRecorder;
 
 	override public function create()
 	{
@@ -58,11 +58,25 @@ class Whimsi extends FlxState
 		FlxG.mouse.visible = false;
 		FlxG.autoPause = false;
 		FlxG.fixedTimestep = false;
-		FlxG.updateFramerate = 180 * 2;
-		FlxG.drawFramerate = 180;
+		FlxG.updateFramerate = 120;
+		FlxG.drawFramerate = 60;
 
-		recorder = new FlxScreenRecorder();
-		add(recorder);
+		#if NO_GC
+		#if hl
+		hl.Gc.enable(false);
+		#end
+		#end
+
+		// recorder = new FlxScreenRecorder();
+		// add(recorder);
+
+		// recorder.start({
+		// 	width: FlxG.width,
+		// 	height: FlxG.height,
+		// 	crf: 17,
+		// 	videoCodec: H264,
+		// 	framerate: 60
+		// });
 
 		music = cast FlxG.sound.load('assets/whimsi/whimsi.wav');
 
@@ -108,16 +122,19 @@ class Whimsi extends FlxState
 		// bg.scale.set(1.3, 1.3);
 		// add(bg);
 
-		var bg:FlxSprite = new FlxSprite().makeGraphic(FlxG.width, FlxG.height, 0xFF020A06);
+		// var bg:FlxSprite = new FlxSprite().makeGraphic(FlxG.width, FlxG.height, 0xFF020A06);
+		var bg = new FlxSprite(0, 0, "assets/whimsi/whimsi-bg.png");
 		bg.camera = bgCamera;
+		bg.alpha = 0.6;
 		add(bg);
 
-		midi = new FlxMIDIRenderer(0, 0, 'assets/whimsi/whimsi.mid', [0xFF0A2518]);
+		midi = new FlxMIDIRenderer(0, 0, 'assets/whimsi/whimsi.mid', [0xFF0C291B]);
 		midi.camera = midiCamera;
 		// midi.setBlend(ADD);
 		// midi.blend = ADD;
 		// midi.alpha = 0.7;
 		midi.screenCenter(Y);
+		midi.alpha = 0.8;
 		add(midi);
 
 		dvdShadow = new FlxSprite().loadGraphic("assets/dvdShadow.png");
@@ -201,6 +218,7 @@ class Whimsi extends FlxState
 		// waveformRight.alpha = 0;
 
 		music.onComplete = playOutro;
+		FlxG.sound.play("assets/info.ogg");
 	}
 
 	override public function update(elapsed:Float)
@@ -239,6 +257,7 @@ class Whimsi extends FlxState
 		dvd.angle += (conductor.beatLength / 1000) * elapsed * 20;
 
 		wiggleEffect.update(elapsed);
+		// recorder.captureFrame();
 	}
 
 	var inIntro:Bool = false;
@@ -246,19 +265,12 @@ class Whimsi extends FlxState
 
 	function playIntro():Void
 	{
-		// recorder.start({
-		// 	width: FlxG.width,
-		// 	height: FlxG.height,
-		// 	crf: 17,
-		// 	videoCodec: H265,
-		// 	framerate: 60
-		// });
-
 		inIntro = true;
 
 		overlay.alpha = 1;
 		dvd.alpha = 1;
-		FlxTween.tween(overlay, {alpha: 0}, 1);
+		// FlxTween.tween(overlay, {alpha: 0}, 1);
+		overlay.alpha = 0;
 
 		curTime.text = FlxStringUtil.formatTime(music.realPosition / 1000, false);
 		remainingTime.text = FlxStringUtil.formatTime((music.length - music.realPosition) / 1000, false);
@@ -314,14 +326,16 @@ class Whimsi extends FlxState
 	
 	function playOutro():Void
 	{
-		FlxTween.tween(dvdShadow, {alpha: 0}, 1);
-		FlxTween.tween(curTime, {alpha: 0}, 1);
-		FlxTween.tween(remainingTime, {alpha: 0}, 1);
-		FlxTween.tween(bar, {alpha: 0}, 1);
+		music.time = music.length;
 
-		FlxTween.tween(waveform, {alpha: 0}, 1);
-		FlxTween.tween(waveformLeft, {alpha: 0}, 1);
-		FlxTween.tween(waveformRight, {alpha: 0}, 1);
+		// FlxTween.tween(dvdShadow, {alpha: 0}, 1);
+		// FlxTween.tween(curTime, {alpha: 0}, 1);
+		// FlxTween.tween(remainingTime, {alpha: 0}, 1);
+		// FlxTween.tween(bar, {alpha: 0}, 1);
+
+		// FlxTween.tween(waveform, {alpha: 0}, 1);
+		// FlxTween.tween(waveformLeft, {alpha: 0}, 1);
+		// FlxTween.tween(waveformRight, {alpha: 0}, 1);
 
 		// curTime.text = FlxStringUtil.formatTime(music.realPosition / 1000, false);
 		// remainingTime.text = FlxStringUtil.formatTime((music.length - music.realPosition) / 1000, false);
@@ -332,7 +346,8 @@ class Whimsi extends FlxState
 			FlxTween.tween(overlay, {alpha: 1}, 1);
 			FlxTimer.wait(2, () ->
 			{
-				recorder.stop();
+				// recorder.stop();
+				FlxG.sound.play("assets/info.ogg");
 			});
 		});
 	}
